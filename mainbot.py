@@ -10,6 +10,8 @@ from . import apikeys
 from threading import Thread
 # randint for the tweet interval
 from random import randint
+# import setup for all data
+from .setup import .
 
 
 
@@ -20,11 +22,11 @@ def main():
     # set this up with error handling
     while True:
         try:
-            setup()
+            setUp()
             break
         except Exception as exception:
             print(exception)
-            print("will sleep for 1 hour to avoid exception")
+            print("will sleep for 1 hour to avoid exception in setup")
             time.sleep(60*60)
             print("exception sleep in setup now finished; retrying setup")
     
@@ -36,6 +38,16 @@ def main():
     reply_streamer_thread.start()
     tweet_loop_thread.start()
     # these threads will run infinitely
+
+
+def setUp():
+    # initialize users
+    global users
+    # initialize users
+    users = Users()
+    print("initialized users")
+    print("setup complete")
+
 
 
 
@@ -50,14 +62,14 @@ def reply_streamer():
     # nest it in error handling
     while True:
         try:
-            streamer.statuses.filter(track=("@" + twythonaccess.screen_name))
+            streamer.statuses.filter(track=("@" + screen_name))
         except Exception as exception:
             # print the exception and then sleep for an hour
             # the sleep will reset rate limit
             # if twitter's servers were down, they may be up after the sleep
             # after the sleep, the filter function will be called anew
             print(exception)
-            print("will sleep for 1 hour to avoid exception")
+            print("will sleep for 1 hour to avoid exception in streaming api")
             time.sleep(60*60)
             print("finished sleep after exception in streaming api. will now start anew")
 
@@ -78,7 +90,9 @@ def tweet_loop():
             # send tweet
             while True:
                 # generate new tweet
-                tweet = markov.generate_tweet()
+                # first generate a random naumber
+                randnum = randint(0,len(kind_tweets)-1)
+                tweet = kind_tweets[randnum] + hashtag
                 print("tweet generated: " + tweet)
                 if twythonaccess.send_tweet(tweet):
                     # the generated tweet is okay
