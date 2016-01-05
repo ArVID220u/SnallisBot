@@ -4,10 +4,10 @@
 screen_name = "SnallisBot"
 
 # The reply tweet should be very friendly and kind. Like three emoji hearts
-reply_tweet = ""
+reply_tweet = "❤️❤️❤️ #SnällisBot"
 
 # The hashtag to append to every tweet
-hashtag = "#SnällisBot"
+hashtag = " ❤️ #SnällisBot"
 
 # The possible tweets to choose from
 kind_tweets = ["Du är underbar.",
