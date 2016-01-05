@@ -2,7 +2,7 @@
 from twython import TwythonStreamer
 
 # the FastReplyStreamer class will use the streaming api to quickly reply to tweets.
-# It will be used for filtering all tweets containing @gsgottsnack.
+# It will be used for filtering all tweets containing the screen name.
 # This class could technically be used to reply to all kinds of tweets.
 class FastReplyStreamer(TwythonStreamer):
     # this function will be called when a tweet is received
