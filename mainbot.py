@@ -57,7 +57,7 @@ def setUp():
 # this function will be executed in one thread, and tweet_loop on the other
 # purpose to isolate this in streaming api is to reply to all tweets mentioning self quickly
 def reply_streamer():
-    print("starting registering for streaming api")
+    print("starting registering for streaming api for fastrelystreamer")
     # initialize the fastreplystreamer
     streamer = FastReplyStreamer(apikeys.CONSUMER_KEY, apikeys.CONSUMER_SECRET, apikeys.ACCESS_TOKEN, apikeys.ACCESS_TOKEN_SECRET) 
     # start the filter
@@ -71,9 +71,9 @@ def reply_streamer():
             # if twitter's servers were down, they may be up after the sleep
             # after the sleep, the filter function will be called anew
             print(exception)
-            print("will sleep for 1 hour to avoid exception in streaming api")
+            print("will sleep for 1 hour to avoid exception in fastreplystreamer")
             time.sleep(60*60)
-            print("finished sleep after exception in streaming api. will now start anew")
+            print("finished sleep after exception in fastreplystreamer. will now start anew")
 
 
 # the run loop, which will continue in infinity
@@ -90,6 +90,7 @@ def tweet_loop():
         # and then continue with the loop
         try:
             user = users.get_user()
+            print("will send tweet to user: " + user)
             # send tweet
             while True:
                 # generate new tweet

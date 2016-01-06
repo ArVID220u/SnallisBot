@@ -27,6 +27,7 @@ class Users:
         # start a thread for mining the swedish users
         swedish_miner_thread = Thread(target = self.swedish_miner_streamer)
         swedish_miner_thread.start()
+        print("has initialized users by starting miner thread")
 
 
     # add a user to the lists, checking first if it's unique
@@ -34,10 +35,13 @@ class Users:
         if userid in self.added_users:
             # already added this user, abort
             return
+        print("adding user with id: " + str(userid))
         # if there already are too many users in the mine_followers array, disconnect the swedish_miner
         if len(self.mine_followers) > 1000:
-            self.swedish_miner.alive = False
-            self.swedish_miner.disconnect()
+            if self.swedish_miner.alive:
+                print("disconnect swedish miner due to many already in queue")
+                self.swedish_miner.disconnect()
+                self.swedish_miner.alive = False
         # add user to added_users
         self.added_users.add(userid)
         # append user to both the minefollowers queue and the nextusers queue
@@ -50,6 +54,7 @@ class Users:
         # if the number of users in next_users is less than 10, mine some followers
         if len(self.next_users) < 10 and len(self.mine_followers) > 0:
             # do it in a separate thread
+            print("need to mine som users since next_users is of length: " + str(len(self.next_users)))
             mine_followers_thread = Thread(target = self.mine_some_followers)
             mine_followers_thread.start()
         # if next users length is zero, which just should never happen, wait
@@ -68,6 +73,7 @@ class Users:
                 break
             elif len(self.next_users) == 0:
                 return self.get_user()
+        print("found user with screenname: " + screenname)
         # return it
         return screenname
         
@@ -77,6 +83,7 @@ class Users:
     def mine_some_followers(self):
         # if the mine_followers queue contains less than 200 items, start the swedish streamer
         if len(self.mine_followers) < 200 and not self.swedish_miner.alive:
+            print("starting swedish miner anew since mine followers length is " + str(len(self.mine_followers)))
             swedish_miner_thread = Thread(target = self.swedish_miner_streamer)
             swedish_miner_thread.start()
         while len(self.mine_followers) == 0:
@@ -102,12 +109,14 @@ class Users:
                     count += 1
             if count > 100 or len(mine_followers) == 0:
                 break
+        print("finished mining followers")
 
 
     # start the swedish miner streamer
     def swedish_miner_streamer(self):
         # get most of all swedish tweets
         # it performs an or search, with language sv
+        print("starting swedish miner streamer")
         self.swedish_miner.alive = True
         self.swedish_miner.statuses.filter(track="i,och,att,det,som,en,på,är,av,för", language="sv")
 
@@ -120,6 +129,7 @@ class SwedishMiner(TwythonStreamer):
     # this function is called when a tweet is received
     def on_success(self, tweet):
         # add the user
+        print("found new user from swedish streamer miner")
         self.users.add_user(tweet["id"])
 
     def on_error(self, status_code, data):

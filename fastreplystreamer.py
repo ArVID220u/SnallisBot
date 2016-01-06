@@ -26,9 +26,10 @@ class FastReplyStreamer(TwythonStreamer):
         twythonaccess.sleep_if_requests_are_maximum(170)
         screenname = twythonaccess.authorize(main=True).show_user(user_id=userid)["screen_name"]
         tweet = "@" + screenname + " " + setup.reply_tweet
+        print("will reply to someone with following tweet: " + tweet)
         if twythonaccess.send_tweet(tweet, in_reply_to_status_id=data["id"]):
             # the generated tweet is okay
-            print("tweet approved or passed")
+            print("tweet approved or passed in fastrelystreamer")
             break
 
     # when an error is caught
