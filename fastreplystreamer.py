@@ -1,5 +1,9 @@
 # the FastReplyStreamer is a subclass of TwythonStreamer
 from twython import TwythonStreamer
+# import twythonaccess to be able to send tweets
+from . import twythonaccess
+# setup needed to access reply_tweet
+from . import setup
 
 # the FastReplyStreamer class will use the streaming api to quickly reply to tweets.
 # It will be used for filtering all tweets containing the screen name.
@@ -9,7 +13,16 @@ class FastReplyStreamer(TwythonStreamer):
     def on_success(self, data):
         # the data variables contains a tweet
         # reply to that tweet
-        self.markov.generate_reply(to_tweet = data)
+        # generate new tweet
+        # first generate a random naumber
+        userid = data["user"]["id"]
+        twythonaccess.sleep_if_requests_are_maximum(170)
+        screenname = twythonaccess.authorize(main=True).show_user(user_id=userid)["screen_name"]
+        tweet = "@" + screenname + " " + setup.reply_tweet
+        if twythonaccess.send_tweet(tweet, in_reply_to_status_id=data["id"]):
+            # the generated tweet is okay
+            print("tweet approved or passed")
+            break
 
     # when an error is caught
     def on_error(self, status_code, data):

@@ -86,15 +86,16 @@ def tweet_loop():
         # the except clause will do nothing but sleep for a while,
         # and then continue with the loop
         try:
-
+            
+            user = users.get_user()
             # send tweet
             while True:
                 # generate new tweet
                 # first generate a random naumber
                 randnum = randint(0,len(kind_tweets)-1)
-                tweet = kind_tweets[randnum] + hashtag
+                tweet = "@" + user + " " + kind_tweets[randnum] + hashtag
                 print("tweet generated: " + tweet)
-                if twythonaccess.send_tweet(tweet):
+                if len(tweet) < 140 and twythonaccess.send_tweet(tweet):
                     # the generated tweet is okay
                     print("tweet approved or passed")
                     break
