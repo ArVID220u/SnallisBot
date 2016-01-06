@@ -2,6 +2,8 @@
 from . import twythonaccess
 # import time and sys
 import time
+# import users
+from .users import Users
 # import fast streamer
 from . import FastReplyStreamer
 # import apikeys to authenticate streamer
@@ -76,6 +78,7 @@ def reply_streamer():
 
 # the run loop, which will continue in infinity
 def tweet_loop():
+    global users
     while True:
         print("start loop")
 
@@ -86,7 +89,6 @@ def tweet_loop():
         # the except clause will do nothing but sleep for a while,
         # and then continue with the loop
         try:
-            
             user = users.get_user()
             # send tweet
             while True:
