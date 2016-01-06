@@ -9,6 +9,8 @@ from . import setup
 # It will be used for filtering all tweets containing the screen name.
 # This class could technically be used to reply to all kinds of tweets.
 class FastReplyStreamer(TwythonStreamer):
+    # don't reply to a particular user more than once
+    replied_to_users = set()
     # this function will be called when a tweet is received
     def on_success(self, data):
         # the data variables contains a tweet
@@ -16,6 +18,11 @@ class FastReplyStreamer(TwythonStreamer):
         # generate new tweet
         # first generate a random naumber
         userid = data["user"]["id"]
+        # don't reply to a particular user more than once
+        if userid in replied_to_users:
+            return
+        replied_to_users.add(userid)
+        # get its screen name
         twythonaccess.sleep_if_requests_are_maximum(170)
         screenname = twythonaccess.authorize(main=True).show_user(user_id=userid)["screen_name"]
         tweet = "@" + screenname + " " + setup.reply_tweet
