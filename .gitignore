@@ -1,5 +1,6 @@
 *.pyc
 apikeys.py
+added_users.data
 __pycache__
 *.bak
 
