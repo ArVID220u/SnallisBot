@@ -131,7 +131,8 @@ def send_tweet(tweet, in_reply_to_status_id=0):
 def sleep_if_requests_are_maximum(limit, main=True):
     if main:
         global main_requests_since_last_sleep
-        print("Requests since last sleep: " + str(main_requests_since_last_sleep))
+        global main_is_sleeping
+        print("Requests since last sleep in main: " + str(main_requests_since_last_sleep))
         if main_requests_since_last_sleep >= limit:
             if not main_is_sleeping:
                 main_is_sleeping = True
@@ -144,7 +145,8 @@ def sleep_if_requests_are_maximum(limit, main=True):
             print("has slept")
     else:
         global mine_requests_since_last_sleep
-        print("Requests since last sleep: " + str(mine_requests_since_last_sleep))
+        global mine_is_sleeping
+        print("Requests since last sleep in mine: " + str(mine_requests_since_last_sleep))
         if mine_requests_since_last_sleep >= limit:
             if not mine_is_sleeping:
                 mine_is_sleeping = True
@@ -176,9 +178,13 @@ def check_if_requests_can_be_reset(main=True):
 
 # reset the main requests
 def main_reset_requests():
+    global main_requests_since_last_sleep
+    global main_is_sleeping
     main_requests_since_last_sleep = 0
     main_is_sleeping = False
 # reset the mine requests
 def mine_reset_requests():
+    global mine_requests_since_last_sleep
+    global mine_is_sleeping
     mine_requests_since_last_sleep = 0
     mine_is_sleeping = False

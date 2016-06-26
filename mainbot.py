@@ -5,7 +5,7 @@ import time
 # import users
 from .users import Users
 # import fast streamer
-from . import FastReplyStreamer
+from .fastreplystreamer import FastReplyStreamer
 # import apikeys to authenticate streamer
 from . import apikeys
 # import Thread to be able to run concurrently
@@ -13,7 +13,7 @@ from threading import Thread
 # randint for the tweet interval
 from random import randint
 # import setup for all data
-from .setup import .
+from .setup import *
 
 
 
@@ -57,7 +57,7 @@ def setUp():
 # this function will be executed in one thread, and tweet_loop on the other
 # purpose to isolate this in streaming api is to reply to all tweets mentioning self quickly
 def reply_streamer():
-    print("starting registering for streaming api for fastrelystreamer")
+    print("starting registering for streaming api for fastreplystreamer")
     # initialize the fastreplystreamer
     streamer = FastReplyStreamer(apikeys.CONSUMER_KEY, apikeys.CONSUMER_SECRET, apikeys.ACCESS_TOKEN, apikeys.ACCESS_TOKEN_SECRET) 
     # start the filter
@@ -79,6 +79,8 @@ def reply_streamer():
 # the run loop, which will continue in infinity
 def tweet_loop():
     global users
+    # wait for one minute, to make users get up to speed
+    time.sleep(60)
     while True:
         print("start loop")
 

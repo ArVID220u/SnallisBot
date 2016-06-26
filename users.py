@@ -6,6 +6,8 @@ from . import apikeys
 from twython import TwythonStreamer
 # import threading
 from threading import Thread
+# import time
+import time
 
 # this class provides Swedish usernames
 # all unique, and as long as there are users left in Swedish Twitter, this class will keep churning them out
@@ -19,6 +21,8 @@ class Users:
 
     # initializer
     def __init__(self):
+        # initialize added_users from the data file
+        self.init_added_users()
         # create a swedish_miner
         self.swedish_miner = SwedishMiner(apikeys.MINE_CONSUMER_KEY, apikeys.MINE_CONSUMER_SECRET, apikeys.MINE_ACCESS_TOKEN, apikeys.MINE_ACCESS_TOKEN_SECRET)
         # set its users property to self
@@ -30,6 +34,17 @@ class Users:
         print("has initialized users by starting miner thread")
 
 
+    # initialize added users from the file added_users.data
+    def init_added_users(self):
+        with open("/home/arvid220u/twitterbots/nicebot/added_users.data", 'r') as datafile:
+            # at every line, there is exactly one user id, that has already beeen processed
+            for line in datafile:
+                userid = int(line.strip())
+                self.added_users.add(userid)
+
+
+
+
     # add a user to the lists, checking first if it's unique
     def add_user(self, userid):
         if userid in self.added_users:
@@ -37,13 +52,15 @@ class Users:
             return
         print("adding user with id: " + str(userid))
         # if there already are too many users in the mine_followers array, disconnect the swedish_miner
-        if len(self.mine_followers) > 1000:
+        if len(self.mine_followers) > 100:
             if self.swedish_miner.alive:
                 print("disconnect swedish miner due to many already in queue")
                 self.swedish_miner.disconnect()
                 self.swedish_miner.alive = False
         # add user to added_users
         self.added_users.add(userid)
+        # also add to the data file called added_users.data
+        
         # append user to both the minefollowers queue and the nextusers queue
         self.next_users.append(userid)
         self.mine_followers.append(userid)
@@ -54,26 +71,32 @@ class Users:
         # if the number of users in next_users is less than 10, mine some followers
         if len(self.next_users) < 10 and len(self.mine_followers) > 0:
             # do it in a separate thread
-            print("need to mine som users since next_users is of length: " + str(len(self.next_users)))
+            print("need to mine some users since next_users is of length: " + str(len(self.next_users)))
             mine_followers_thread = Thread(target = self.mine_some_followers)
             mine_followers_thread.start()
         # if next users length is zero, which just should never happen, wait
         while len(self.next_users) == 0:
+            print("next users is 0, will sleep for 6 minutes")
             time.sleep(6*60)
         # do not respond to protected users
         screenname = ""
+        userid = 0
         while True:
             # get the frontmost user in the next_users queue
             firstid = self.next_users.pop(0)
             # get the screen name of this particular user
             twythonaccess.sleep_if_requests_are_maximum(170, main=False)
-            user = twythonaccess.authorize(main=False).show_user(user_id=userid)
+            user = twythonaccess.authorize(main=False).show_user(user_id=firstid)
             if not user["protected"]:
                 screenname = user["screen_name"]
+                userid = user["id"]
                 break
             elif len(self.next_users) == 0:
                 return self.get_user()
         print("found user with screenname: " + screenname)
+        # add this user to the added users data file, so as to not tweet to the same person twice
+        with open("/home/arvid220u/twitterbots/nicebot/added_users.data", 'a') as datafile:
+            datafile.write(str(userid) + '\n')
         # return it
         return screenname
         
@@ -82,11 +105,12 @@ class Users:
     # mine some followers
     def mine_some_followers(self):
         # if the mine_followers queue contains less than 200 items, start the swedish streamer
-        if len(self.mine_followers) < 200 and not self.swedish_miner.alive:
+        if len(self.mine_followers) < 20 and not self.swedish_miner.alive:
             print("starting swedish miner anew since mine followers length is " + str(len(self.mine_followers)))
             swedish_miner_thread = Thread(target = self.swedish_miner_streamer)
             swedish_miner_thread.start()
         while len(self.mine_followers) == 0:
+            print("mine followers is 0, will sleep for 6 minutes")
             time.sleep(6*60)
         counter = 0
         while True:
@@ -129,8 +153,8 @@ class SwedishMiner(TwythonStreamer):
     # this function is called when a tweet is received
     def on_success(self, tweet):
         # add the user
-        print("found new user from swedish streamer miner")
-        self.users.add_user(tweet["id"])
+        #print("found new user from swedish streamer miner")
+        self.users.add_user(tweet["user"]["id"])
 
     def on_error(self, status_code, data):
         print("STREAMING API ERROR in SwedishStreamer")

@@ -19,9 +19,9 @@ class FastReplyStreamer(TwythonStreamer):
         # first generate a random naumber
         userid = data["user"]["id"]
         # don't reply to a particular user more than once
-        if userid in replied_to_users:
+        if userid in self.replied_to_users:
             return
-        replied_to_users.add(userid)
+        self.replied_to_users.add(userid)
         # get its screen name
         twythonaccess.sleep_if_requests_are_maximum(170)
         screenname = twythonaccess.authorize(main=True).show_user(user_id=userid)["screen_name"]
@@ -30,7 +30,6 @@ class FastReplyStreamer(TwythonStreamer):
         if twythonaccess.send_tweet(tweet, in_reply_to_status_id=data["id"]):
             # the generated tweet is okay
             print("tweet approved or passed in fastrelystreamer")
-            break
 
     # when an error is caught
     def on_error(self, status_code, data):
